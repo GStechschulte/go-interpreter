@@ -1,3 +1,5 @@
+// Builds the nodes for the Abstract Syntax Tree (AST).
+
 package ast
 
 import "github.com/GStechschulte/go-interpreter/src/monkey/token"
