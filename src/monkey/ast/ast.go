@@ -2,11 +2,16 @@
 
 package ast
 
-import "github.com/GStechschulte/go-interpreter/src/monkey/token"
+import (
+	"bytes"
+
+	"github.com/GStechschulte/go-interpreter/src/monkey/token"
+)
 
 // Node is the basic interface for all nodes in the AST
 type Node interface {
 	TokenLiteral() string
+	String() string
 }
 
 // Statement is a node that doesn't produce a value
@@ -35,6 +40,24 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+func (p *Program) String() string {
+	var out bytes.Buffer // buffer to store the string representation of the AST
+	// loop through statements in the program, calling the String() method on each one
+	// and then appending the result to the buffer
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+	return out.String()
+}
+
+type ExpressionStatement struct {
+	Token      token.Token
+	Expression Expression
+}
+
+func (es *ExpressionStatement) statementNode()       {}
+func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
+
 type ReturnStatement struct {
 	Token       token.Token
 	ReturnValue Expression
@@ -62,3 +85,40 @@ type Identifier struct {
 
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+func (i *Identifier) String() string       { return i.Value }
+
+func (ls *LetStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(ls.TokenLiteral() + " ")
+	out.WriteString(ls.Name.String())
+	out.WriteString(" = ")
+
+	if ls.Value != nil {
+		out.WriteString(ls.Value.String())
+	}
+	out.WriteString(";")
+
+	return out.String()
+}
+
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(rs.TokenLiteral() + " ")
+
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
+	}
+	out.WriteString(";")
+
+	return out.String()
+}
+
+func (es *ExpressionStatement) String() string {
+	if es.Expression != nil {
+		return es.Expression.String()
+	} else {
+		return ""
+	}
+}
