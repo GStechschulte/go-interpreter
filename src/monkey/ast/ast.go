@@ -4,6 +4,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/GStechschulte/go-interpreter/src/monkey/token"
 )
@@ -197,6 +198,34 @@ func (ls *LetStatement) String() string {
 		out.WriteString(ls.Value.String())
 	}
 	out.WriteString(";")
+
+	return out.String()
+}
+
+type FunctionLiteral struct {
+	Token      token.Token // the 'fn' token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fl *FunctionLiteral) expressionNode()      {}
+func (fl *FunctionLiteral) TokenLiteral() string { return fl.Token.Literal }
+func (fl *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	// loop through the parameters of the function literal
+	// and add their string representations to the params array
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(fl.TokenLiteral())
+	out.WriteString("(")
+	// join the strings in the array with commas
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(fl.Body.String())
 
 	return out.String()
 }
